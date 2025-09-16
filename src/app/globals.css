@@ -1,26 +1,192 @@
 @import "tailwindcss";
 
+/* ──────────────────────────────────────────────────────────
+   CSS Variables
+   ────────────────────────────────────────────────────────── */
+
+/* Light theme defaults */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f9fafb;
+  --foreground: #111827;
+
+  --muted: #e5e7ea;
+  --hmuted: #ffffff;
+  /* light muted surface (hero/help) */
+  --helpbackground: #ffffff;
+  /* light help panel backing */
+
+  --muted-foreground: #525252;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --border: #e5e7eb;
+
+  --primary: #2563eb;
+  --primary-foreground: #f7f9ff;
+
+  /* Brand accents */
+  --success: #16a34a;
+  /* green-600 */
+  --success-foreground: #f7f9ff;
+  --info: #F8462C;
+  /* secondary brand */
+  --info-foreground: #f7f9ff;
+
+  color-scheme: light;
 }
 
+/* Dark theme (applied when <html class="dark"> is present) */
+.dark {
+  --background: #030712;
+  --foreground: #fafafa;
+
+  --muted: #1f2937;
+  --hmuted: #111827;
+  /* dark muted surface (hero/help) */
+  --helpbackground: #111827;
+  /* dark help panel backing */
+
+  --muted-foreground: #a3a3a3;
+  --card: #0f172a;
+  --card-foreground: #fafafa;
+  --border: #374151;
+
+  --primary: #3b82f6;
+  --primary-foreground: #f7f9ff;
+
+  /* Dark-tuned accents */
+  --success: #22c55e;
+  /* ~green-500 */
+  --success-foreground: #062e12;
+  --info: #F8462C;
+  /* secondary brand */
+  --info-foreground: #0b1b3a;
+
+  color-scheme: dark;
+}
+
+/* Tailwind v4 theme tokens via CSS variables */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* exposed custom surfaces so you can use bg-hmuted / bg-helpbackground */
+  --color-hmuted: var(--hmuted);
+  --color-helpbackground: var(--helpbackground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* System dark fallback when no .light/.dark class is set */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not(.light):not(.dark) {
+    --background: #030712;
+    --foreground: #fafafa;
+
+    --muted: #1f2937;
+    --hmuted: #111827;
+    --helpbackground: #111827;
+
+    --muted-foreground: #a3a3a3;
+    --card: #0f172a;
+    --card-foreground: #fafafa;
+    --border: #1f1f1f;
+
+    --success: #22c55e;
+    --success-foreground: #062e12;
+    --primary: #3b82f6;
+    --primary-foreground: #f7f9ff;
+    --info: #F8462C;
+    --info-foreground: #0b1b3a;
+
+    color-scheme: dark;
   }
+}
+
+/* ──────────────────────────────────────────────────────────
+   Base styles
+   ────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  border-color: var(--border);
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--Montserrat, sans-serif);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}
+
+/* Global cursor for clickable elements */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+summary,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Disabled states */
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* ──────────────────────────────────────────────────────────
+   Custom helper classes (easy reuse in JSX)
+   ────────────────────────────────────────────────────────── */
+
+/* Brand gradient text: #00adee → #4827D0 */
+.brand-gradient-text {
+  background-image: linear-gradient(to right, #00adee, #4827d0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Brand gradient background (for chips/badges, etc.) */
+.brand-gradient-bg {
+  background-image: linear-gradient(to right, #00adee, #4827d0);
+  color: #fff;
+}
+
+/* Optional surfaces if you prefer a class over Tailwind token */
+.help-surface {
+  background: var(--helpbackground);
+}
+
+.hmuted-surface {
+  background: var(--hmuted);
 }
