@@ -115,7 +115,7 @@ export function TransferModal({
                                 <motion.span
                                     role="status"
                                     aria-label={t('common.loading', { defaultValue: 'Loading' })}
-                                    className="inline-block h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary"
+                                    className="inline-block h-16 w-16 rounded-full border-4 !border-primary/20 !border-t-primary"
                                     animate={{ rotate: 360 }}
                                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                                 />
