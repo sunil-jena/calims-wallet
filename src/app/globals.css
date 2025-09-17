@@ -14,7 +14,7 @@
   /* light muted surface (hero/help) */
   --helpbackground: #ffffff;
   /* light help panel backing */
-
+  --input-color: #ffffff;
   --muted-foreground: #525252;
   --card: #ffffff;
   --card-foreground: #111827;
@@ -65,6 +65,7 @@
   /* dark muted surface (hero/help) */
   --helpbackground: #111827;
   /* dark help panel backing */
+  --input-color: #3B3B3B;
 
   --muted-foreground: #a3a3a3;
   --card: #0f172a;
@@ -244,7 +245,7 @@ select,
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  background: var(--muted);
+  background: var(--input-color);
   color: var(--muted-foreground);
   border: 1px solid var(--border);
   outline: none;
