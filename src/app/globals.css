@@ -9,7 +9,7 @@
   --background: #f9fafb;
   --foreground: #111827;
 
-  --muted: #e5e7ea;
+  --muted: #ffffff;
   --hmuted: #ffffff;
   /* light muted surface (hero/help) */
   --helpbackground: #ffffff;
@@ -30,6 +30,27 @@
   --info: #F8462C;
   /* secondary brand */
   --info-foreground: #f7f9ff;
+  --tone-virtual-bg: #eff6ff;
+  /* blue-50 */
+  --tone-virtual-fg: #3b82f6;
+  /* blue-500/600 */
+
+  /* direct-card (green) */
+  --tone-direct-bg: #f0fdf4;
+  /* green-50 */
+  --tone-direct-fg: #16a34a;
+  /* green-600 */
+
+  /* ach (purple) */
+  --tone-ach-bg: #faf5ff;
+  /* purple-50 */
+  --tone-ach-fg: #9333ea;
+  /* purple-600 */
+
+  /* check (amber) */
+  --tone-check-bg: #fffbeb;
+  /* amber-50 */
+  --tone-check-fg: #d97706;
 
   color-scheme: light;
 }
@@ -60,6 +81,25 @@
   --info: #F8462C;
   /* secondary brand */
   --info-foreground: #0b1b3a;
+  --tone-virtual-bg: #1e3a8a4d;
+  /* blue-900 @ 0x4D ≈ 30% */
+  --tone-virtual-fg: #60a5fa;
+  /* blue-400 */
+
+  --tone-direct-bg: #14532d4d;
+  /* green-900 @ 30% */
+  --tone-direct-fg: #4ade80;
+  /* green-400 */
+
+  --tone-ach-bg: #581c874d;
+  /* purple-900 @ 30% */
+  --tone-ach-fg: #c084fc;
+  /* purple-400 */
+
+  --tone-check-bg: #78350f4d;
+  /* amber-900 @ 30% */
+  --tone-check-fg: #fbbf24;
+  /* amber-400 */
 
   color-scheme: dark;
 }
@@ -189,4 +229,273 @@ input[type="reset"]:disabled,
 
 .hmuted-surface {
   background: var(--hmuted);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Unified form controls (light + dark via your tokens)
+   Applies to: input, textarea, select (and .form-input)
+   ────────────────────────────────────────────────────────── */
+
+/* Base */
+input,
+textarea,
+select,
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  outline: none;
+  transition:
+    box-shadow .15s ease,
+    border-color .15s ease,
+    background-color .15s ease,
+    color .15s ease;
+}
+
+/* Placeholder — light uses your token, dark is forced to #3B3B3B */
+input::placeholder,
+textarea::placeholder,
+.form-input::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder,
+.dark .form-input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+/* Focus ring */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.form-input:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 28%, transparent);
+}
+
+/* Disabled */
+input:disabled,
+textarea:disabled,
+select:disabled,
+.form-input:disabled,
+input[aria-disabled="true"],
+textarea[aria-disabled="true"],
+select[aria-disabled="true"],
+.form-input[aria-disabled="true"] {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+
+/* Error / success opt-in */
+.is-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, #ef4444 22%, transparent) !important;
+}
+
+.is-success {
+  border-color: var(--success) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--success) 22%, transparent) !important;
+}
+
+/* Textarea */
+textarea,
+textarea.form-input {
+  min-height: 6.5rem;
+  resize: vertical;
+}
+
+/* Select arrow (native) */
+select,
+select.form-input {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 13px) calc(50% - 3px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2.5rem;
+}
+
+/* Date/time widgets: respect theme colors */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: inherit;
+}
+
+/* Number spinner removal */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Autofill fix (dark especially) */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px var(--card) inset !important;
+  -webkit-text-fill-color: var(--card-foreground) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Input group helpers (for $ prefix, icons, etc.) */
+.input-group {
+  position: relative;
+}
+
+.input-prefix,
+.input-suffix {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.input-prefix {
+  left: 0.75rem;
+}
+
+.input-suffix {
+  right: 0.75rem;
+}
+
+.with-prefix {
+  padding-left: 2.25rem !important;
+}
+
+.with-suffix {
+  padding-right: 2.25rem !important;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   n8n chat — Berry theme overrides
+   ────────────────────────────────────────────────────────── */
+
+#n8n-chat .chat-floating-window {
+  /* card look */
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, .18);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+/* Header (blue bar with title + subtitle) */
+#n8n-chat .chat-header {
+  background: linear-gradient(0deg, #2563eb, #2563eb);
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+#n8n-chat .chat-header .chat-title {
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+#n8n-chat .chat-header .chat-subtitle {
+  opacity: .92;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Body */
+#n8n-chat .chat-body {
+  background: var(--background);
+}
+
+/* Bubbles */
+#n8n-chat .chat-message {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  box-shadow: none;
+}
+
+/* Assistant bubble (left, light gray) */
+#n8n-chat .chat-message.bot {
+  background: color-mix(in oklab, var(--muted) 94%, #fff 6%);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+/* User bubble (right, white/blue edge) */
+#n8n-chat .chat-message.user {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+}
+
+#n8n-chat .chat-input-send-button {
+  color: var(--primary);
+}
+
+
+#n8n-chat .chat-input textarea {
+  color: #030712 !important;
+  min-height: 44px;
+  resize: none;
+  outline: none;
+}
+
+#n8n-chat .chat-input textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+
+
+.tone-badge {
+  padding: 0.5rem;
+  /* p-2 */
+  border-radius: 9999px;
+  /* rounded-full */
+  background: var(--tone-bg, var(--muted));
+  color: var(--tone-fg, var(--foreground));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Map data attributes to the right tone variables */
+.tone-badge[data-tone="virtual-card"] {
+  --tone-bg: var(--tone-virtual-bg);
+  --tone-fg: var(--tone-virtual-fg);
+}
+
+.tone-badge[data-tone="direct-card"] {
+  --tone-bg: var(--tone-direct-bg);
+  --tone-fg: var(--tone-direct-fg);
+}
+
+.tone-badge[data-tone="ach"] {
+  --tone-bg: var(--tone-ach-bg);
+  --tone-fg: var(--tone-ach-fg);
+}
+
+.tone-badge[data-tone="check"] {
+  --tone-bg: var(--tone-check-bg);
+  --tone-fg: var(--tone-check-fg);
 }

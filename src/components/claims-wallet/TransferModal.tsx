@@ -5,6 +5,19 @@ import { motion } from 'framer-motion';
 import { Wallet, X, DollarSign, Shield, Clock, Check, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+type Props = {
+    open: boolean;
+    onClose: () => void;
+    paymentMethodName: string;
+    walletBalance: number;
+    amount: string;
+    setAmount: (v: string) => void;
+    inProgress: boolean;
+    setInProgress: (v: boolean) => void;
+    success: boolean;
+    setSuccess: (v: boolean) => void;
+};
+
 export function TransferModal({
     open,
     onClose,
@@ -16,26 +29,15 @@ export function TransferModal({
     setInProgress,
     success,
     setSuccess,
-}: {
-    open: boolean;
-    onClose: () => void;
-    paymentMethodName: string;
-    walletBalance: number;
-    amount: string;
-    setAmount: (v: string) => void;
-    inProgress: boolean;
-    setInProgress: (v: boolean) => void;
-    success: boolean;
-    setSuccess: (v: boolean) => void;
-}) {
+}: Props) {
     const { t } = useTranslation();
 
     if (!open) return null;
 
     const pm = paymentMethodName;
     const pmLower = pm.toLowerCase();
-    const asNum = parseFloat(amount || '0');
-    const disabled = !amount || asNum <= 0 || asNum > walletBalance;
+    const asNum = Number.parseFloat(amount || '0');
+    const disabled = !amount || Number.isNaN(asNum) || asNum <= 0 || asNum > walletBalance;
 
     const timeCopy =
         pm === 'Virtual Card'
@@ -53,133 +55,234 @@ export function TransferModal({
             setInProgress(false);
             setSuccess(true);
             setTimeout(() => {
-                onClose();
                 setSuccess(false);
                 setAmount('');
-            }, 2000);
-        }, 1500);
+                onClose();
+            }, 1600);
+        }, 1200);
+    };
+
+    // ids for labels
+    const ids = {
+        amount: 'transfer-amount',
+        bankName: 'ach-bank-name',
+        routing: 'ach-routing-number',
+        account: 'ach-account-number',
+        cardNum: 'card-number',
+        cardExp: 'card-exp',
+        cardZip: 'card-zip',
+        mailAddr: 'mail-address',
     };
 
     return (
         <motion.div
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => !inProgress && !success && onClose()}
         >
             <motion.div
-                className="bg-card rounded-xl p-8 max-w-md w-full mx-4 relative border border-border"
+                className="relative mx-4 w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-xl"
                 initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label={t('transfer.titleTo', { defaultValue: 'Transfer to {{pm}}', pm })}
             >
                 {!success ? (
                     <>
-                        <div className="flex items-center justify-between mb-6">
+                        <header className="mb-6 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <Wallet className="h-6 w-6 text-primary" />
-                                <h3 className="text-xl font-bold">{inProgress ? t('transfer.processing', 'Processing...') : t('transfer.titleTo', { defaultValue: 'Transfer to {{pm}}', pm })}</h3>
+                                <h3 className="text-xl font-bold">
+                                    {inProgress
+                                        ? t('transfer.processing', 'Processing...')
+                                        : t('transfer.titleTo', { defaultValue: 'Transfer to {{pm}}', pm })}
+                                </h3>
                             </div>
                             {!inProgress && (
-                                <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+                                <button
+                                    onClick={onClose}
+                                    className="text-muted-foreground hover:text-foreground"
+                                    aria-label={t('common.close', 'Close')}
+                                >
                                     <X className="h-6 w-6" />
                                 </button>
                             )}
-                        </div>
+                        </header>
 
                         {inProgress ? (
-                            <div className="py-10 flex flex-col items-center justify-center">
-                                <div className="mb-6">
-                                    <motion.span
-                                        role="status"
-                                        aria-label={t('common.loading', { defaultValue: 'Loading' })}
-                                        className="inline-block h-16 w-16 rounded-full border-4 !border-primary/20 !border-t-primary"
-                                        animate={{ rotate: 360 }}
-                                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                                    />
-                                </div>
-                                <p className="text-center text-muted-foreground">
+                            <div className="flex flex-col items-center justify-center py-10">
+                                <motion.span
+                                    role="status"
+                                    aria-label={t('common.loading', { defaultValue: 'Loading' })}
+                                    className="inline-block h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                />
+                                <p className="mt-6 text-center text-muted-foreground">
                                     {t('transfer.progressCopy', {
                                         defaultValue: 'Transferring funds to your {{pm}}...',
                                         pm: pmLower,
                                     })}
                                 </p>
                             </div>
-
                         ) : (
                             <>
-                                <div className="bg-primary/10 rounded-lg p-4 mb-6 flex items-center">
-                                    <DollarSign className="h-10 w-10 text-primary mr-3" />
+                                {/* Balance pill */}
+                                <div className="mb-6 flex items-center rounded-lg bg-primary/10 p-4">
+                                    <DollarSign className="mr-3 h-10 w-10 text-primary" />
                                     <div>
-                                        <div className="text-sm text-muted-foreground">{t('transfer.available', 'Available Balance')}</div>
+                                        <div className="text-sm text-muted-foreground">
+                                            {t('transfer.available', 'Available Balance')}
+                                        </div>
                                         <div className="text-xl font-bold">${walletBalance.toLocaleString()}</div>
                                     </div>
                                 </div>
 
+                                {/* Amount */}
                                 <div className="mb-6">
-                                    <label className="block text-sm font-medium mb-2">{t('transfer.amount', 'Transfer Amount')}</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                    <label htmlFor={ids.amount} className="mb-2 block text-sm font-medium">
+                                        {t('transfer.amount', 'Transfer Amount')}
+                                    </label>
+                                    <div className="input-group">
+                                        <span className="input-prefix" aria-hidden>$</span>
                                         <input
+                                            id={ids.amount}
+                                            name="amount"
                                             type="number"
+                                            inputMode="decimal"
                                             value={amount}
                                             onChange={(e) => setAmount(e.target.value)}
                                             placeholder="0.00"
-                                            className="w-full pl-8 pr-4 py-3 rounded-lg border border-border text-xl bg-card"
                                             min="0.01"
                                             max={walletBalance}
                                             step="0.01"
+                                            className="with-prefix form-input text-xl"
+                                            autoComplete="off"
                                         />
                                     </div>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {t('transfer.note', {
+                                            defaultValue: 'Max available: ${{amt}}',
+                                            amt: walletBalance.toLocaleString(),
+                                        })}
+                                    </p>
                                 </div>
 
                                 {/* Conditional extra fields */}
                                 {pm === 'ACH to Bank' && (
-                                    <div className="space-y-4 mb-6">
+                                    <div className="mb-6 space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium mb-2">{t('bank.bankName', 'Bank Name')}</label>
-                                            <input className="w-full px-4 py-2 rounded-lg border border-border bg-card" placeholder={t('bank.bankNamePh', 'Enter bank name')} />
+                                            <label htmlFor={ids.bankName} className="mb-2 block text-sm font-medium">
+                                                {t('bank.bankName', 'Bank Name')}
+                                            </label>
+                                            <input
+                                                id={ids.bankName}
+                                                name="bankName"
+                                                className="form-input"
+                                                placeholder={t('bank.bankNamePh', 'Enter bank name')}
+                                                autoComplete="organization"
+                                                type="text"
+                                            />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium mb-2">{t('bank.routing', 'Routing Number')}</label>
-                                                <input className="w-full px-4 py-2 rounded-lg border border-border bg-card" placeholder={t('bank.routingPh', '9 digits')} />
+                                                <label htmlFor={ids.routing} className="mb-2 block text-sm font-medium">
+                                                    {t('bank.routing', 'Routing Number')}
+                                                </label>
+                                                <input
+                                                    id={ids.routing}
+                                                    name="routingNumber"
+                                                    className="form-input"
+                                                    placeholder={t('bank.routingPh', '9 digits')}
+                                                    inputMode="numeric"
+                                                    pattern="\d*"
+                                                    maxLength={9}
+                                                />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium mb-2">{t('bank.account', 'Account Number')}</label>
-                                                <input className="w-full px-4 py-2 rounded-lg border border-border bg-card" placeholder={t('bank.accountPh', 'Account number')} />
+                                                <label htmlFor={ids.account} className="mb-2 block text-sm font-medium">
+                                                    {t('bank.account', 'Account Number')}
+                                                </label>
+                                                <input
+                                                    id={ids.account}
+                                                    name="accountNumber"
+                                                    className="form-input"
+                                                    placeholder={t('bank.accountPh', 'Account number')}
+                                                    inputMode="numeric"
+                                                    pattern="\d*"
+                                                />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
                                 {pm === 'Direct to Visa/Mastercard' && (
-                                    <div className="space-y-4 mb-6">
+                                    <div className="mb-6 space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium mb-2">{t('card.cardNumber', 'Card Number')}</label>
-                                            <input className="w-full px-4 py-2 rounded-lg border border-border bg-card" placeholder={t('card.cardNumberPh', 'Card number')} />
+                                            <label htmlFor={ids.cardNum} className="mb-2 block text-sm font-medium">
+                                                {t('card.cardNumber', 'Card Number')}
+                                            </label>
+                                            <input
+                                                id={ids.cardNum}
+                                                name="cardNumber"
+                                                className="form-input"
+                                                placeholder={t('card.cardNumberPh', 'Card number')}
+                                                inputMode="numeric"
+                                                autoComplete="cc-number"
+                                            />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium mb-2">{t('card.expiry', 'Expiration Date')}</label>
-                                                <input className="w-full px-4 py-2 rounded-lg border border-border bg-card" placeholder="MM/YY" />
+                                                <label htmlFor={ids.cardExp} className="mb-2 block text-sm font-medium">
+                                                    {t('card.expiry', 'Expiration Date')}
+                                                </label>
+                                                <input
+                                                    id={ids.cardExp}
+                                                    name="cardExpiry"
+                                                    className="form-input"
+                                                    placeholder="MM/YY"
+                                                    inputMode="numeric"
+                                                    autoComplete="cc-exp"
+                                                />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium mb-2">{t('card.zip', 'Zip Code')}</label>
-                                                <input className="w-full px-4 py-2 rounded-lg border border-border bg-card" placeholder={t('card.zipPh', 'Billing zip code')} />
+                                                <label htmlFor={ids.cardZip} className="mb-2 block text-sm font-medium">
+                                                    {t('card.zip', 'Zip Code')}
+                                                </label>
+                                                <input
+                                                    id={ids.cardZip}
+                                                    name="cardZip"
+                                                    className="form-input"
+                                                    placeholder={t('card.zipPh', 'Billing zip code')}
+                                                    inputMode="numeric"
+                                                    autoComplete="postal-code"
+                                                />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
                                 {pm === 'eCheck' && (
-                                    <div className="space-y-4 mb-6">
+                                    <div className="mb-6 space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium mb-2">{t('mail.address', 'Mailing Address')}</label>
-                                            <textarea className="w-full px-4 py-2 rounded-lg border border-border bg-card" placeholder={t('mail.addressPh', 'Enter your mailing address')} rows={3} />
+                                            <label htmlFor={ids.mailAddr} className="mb-2 block text-sm font-medium">
+                                                {t('mail.address', 'Mailing Address')}
+                                            </label>
+                                            <textarea
+                                                id={ids.mailAddr}
+                                                name="mailingAddress"
+                                                className="form-input"
+                                                placeholder={t('mail.addressPh', 'Enter your mailing address')}
+                                                rows={3}
+                                                autoComplete="street-address"
+                                            />
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="flex flex-col gap-2 text-sm text-muted-foreground mb-6">
+                                {/* Meta */}
+                                <div className="mb-6 flex flex-col gap-2 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-2">
                                         <Clock className="h-4 w-4" />
                                         <span>{timeCopy}</span>
@@ -193,8 +296,9 @@ export function TransferModal({
                                 <button
                                     onClick={handleTransfer}
                                     disabled={disabled}
-                                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium transition-all ${disabled ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg'
-                                        }`}
+                                    className={`flex w-full items-center justify-center gap-2 rounded-lg py-3 font-medium transition-all
+                  ${disabled ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg'}`}
                                 >
                                     <span>{t('transfer.cta', 'Transfer Funds')}</span>
                                     <ArrowRight className="h-5 w-5" />
@@ -204,16 +308,25 @@ export function TransferModal({
                     </>
                 ) : (
                     <div className="py-6 text-center">
-                        <div className="flex justify-center mb-4">
-                            <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center">
+                        <div className="mb-4 flex justify-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
                                 <Check className="h-8 w-8 text-success" />
                             </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-2">{t('transfer.successTitle', 'Transfer Successful!')}</h3>
-                        <p className="text-muted-foreground mb-6">
-                            {t('transfer.successCopy', { defaultValue: '{{amount}} has been sent to your {{pm}}.', amount: `$${parseFloat(amount).toFixed(2)}`, pm: pmLower })}
+                        <h3 className="mb-2 text-xl font-bold">
+                            {t('transfer.successTitle', 'Transfer Successful!')}
+                        </h3>
+                        <p className="mb-6 text-muted-foreground">
+                            {t('transfer.successCopy', {
+                                defaultValue: '{{amount}} has been sent to your {{pm}}.',
+                                amount: Number.isNaN(asNum) ? '$0.00' : `$${asNum.toFixed(2)}`,
+                                pm: pmLower,
+                            })}
                         </p>
-                        <button onClick={onClose} className="px-6 py-2 bg-primary/10 hover:opacity-80 text-primary rounded-lg transition-colors">
+                        <button
+                            onClick={onClose}
+                            className="rounded-lg bg-primary/10 px-6 py-2 text-primary transition-opacity hover:opacity-80"
+                        >
                             {t('common.close', 'Close')}
                         </button>
                     </div>

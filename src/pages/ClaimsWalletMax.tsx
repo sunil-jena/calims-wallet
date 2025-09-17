@@ -134,15 +134,7 @@ export default function ClaimsWalletMaxPage() {
   };
 
   // "Refresh" from Wallet card: re-open last method or default to virtual card
-  const handleRefreshWallet = () => {
-    let resolvedId: PaymentMethodId | null = activePaymentMethod;
-    if (!resolvedId && modalPaymentMethod) {
-      resolvedId = PAYMENT_METHODS.find(m => m.name === modalPaymentMethod)?.id ?? null;
-    }
-    if (!resolvedId) resolvedId = 'virtual-card';
-    const method = PAYMENT_METHODS.find(m => m.id === resolvedId)!;
-    setActivePaymentMethod(method.id);
-    setModalPaymentMethod(method.name);
+   const handleRefreshWallet = () => {
     setShowTransferModal(true);
   };
 

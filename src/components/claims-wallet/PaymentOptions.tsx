@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Clock, CreditCard, Landmark, MailCheck } from 'lucide-react';
+import { ArrowRight, Clock, CreditCard, Landmark, MailCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type PaymentMethodId = 'virtual-card' | 'direct-card' | 'ach' | 'check';
@@ -34,14 +34,7 @@ export function PaymentOptions({
                             className="w-full h-full bg-card rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border border-border flex flex-col text-left gap-4 relative overflow-hidden group"
                         >
                             <div className="flex items-center gap-3 mb-1">
-                                <div
-                                    className={`p-2 rounded-full ${m.id === 'direct-card'
-                                        ? 'bg-success/10 text-success'
-                                        : m.id === 'ach'
-                                            ? 'bg-muted text-foreground'
-                                            : 'bg-amber-50 text-amber-600'
-                                        }`}
-                                >
+                                <div className="tone-badge" data-tone={m.id}>
                                     <Icon className="h-5 w-5" />
                                 </div>
                                 <h3 className="font-bold">{t(`methods.${m.id}.name`, m.name)}</h3>
@@ -56,6 +49,7 @@ export function PaymentOptions({
                                 </span>
                                 <span className="text-primary flex items-center text-sm">
                                     <span>{t('common.select', 'Select')}</span>
+                                    <ArrowRight className="h-3 w-3 ml-1 transition-transform group-hover:translate-x-1" />
                                 </span>
                             </div>
                             <div className="absolute inset-0 bg-foreground/[0.05] opacity-0 group-hover:opacity-100 transition-opacity" />

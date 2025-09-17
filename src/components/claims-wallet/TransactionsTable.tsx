@@ -33,7 +33,7 @@ export function TransactionsTable() {
                                 <td className="py-4 px-4">{t(`tx.${i}.desc`, r.desc)}</td>
                                 <td className="py-4 px-4">{r.amt}</td>
                                 <td className="py-4 px-4">
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-success/10 text-success">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-success/6 text-success">
                                         {t('status.completed', r.st)}
                                     </span>
                                 </td>

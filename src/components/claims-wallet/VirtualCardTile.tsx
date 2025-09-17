@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { CreditCard } from 'lucide-react';
+import { ArrowRight, CreditCard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -72,7 +72,7 @@ export function VirtualCardTile({
                             {t('claimsWalletMax.virtualCard', 'Virtual Mastercard')}
                         </h3>
                         <div className="ml-auto">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success/6 text-success">
                                 {t('common.instant', 'INSTANT')}
                             </span>
                         </div>
@@ -89,6 +89,7 @@ export function VirtualCardTile({
                         <span className="font-medium">
                             {t('claimsWalletMax.selectVirtual', 'Select Virtual Card')}
                         </span>
+                        <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
                     </div>
                 </div>
 
